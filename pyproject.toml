@@ -8,6 +8,8 @@ authors = [
     {name = "Felipe Baltor", email = "fbaltor@gmail.com"},
 ]
 dependencies = [
+    "asks>=3.0.0",
+    "trio>=0.22.0",
 ]
 requires-python = ">=3.9"
 readme = "README.md"
