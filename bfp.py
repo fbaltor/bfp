@@ -2,7 +2,8 @@ import os
 import sys
 import argparse
 import hashlib
-import pprint
+import json
+import time
 
 import asks
 import trio
@@ -37,6 +38,20 @@ async def bf_username(curl, username_file, password=None):
         with open(username_file) as file:
             for i, username in enumerate(file):
                 nursery.start_soon(worker, s, i, db, username)
+
+    persist_db(db)
+
+def persist_db(db):
+    output_dir = os.getcwd() + '/output'
+
+    if not os.path.isdir(output_dir):
+        os.makedirs(output_dir)
+
+    timestr = time.strftime('%H_%M_%S-%Y_%m_%d')
+    output_filename = output_dir + '/' + timestr + '.json'
+
+    with open(output_filename, 'w') as out:
+        json.dump(db, out, indent=4)
 
 async def worker(session, key, db, username=None, password=None):
     data = f'username={username}&password={password}'
