@@ -161,3 +161,4 @@ cython_debug/
 
 # Do not save output file
 output
+wordlist

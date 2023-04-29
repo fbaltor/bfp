@@ -41,18 +41,6 @@ async def bf_username(curl, username_file, password=None):
 
     persist_db(db)
 
-def persist_db(db):
-    output_dir = os.getcwd() + '/output'
-
-    if not os.path.isdir(output_dir):
-        os.makedirs(output_dir)
-
-    timestr = time.strftime('%H_%M_%S-%Y_%m_%d')
-    output_filename = output_dir + '/' + timestr + '.json'
-
-    with open(output_filename, 'w') as out:
-        json.dump(db, out, indent=4)
-
 async def worker(session, key, db, username=None, password=None):
     data = f'username={username}&password={password}'
     r = await session.post(data=data)
@@ -64,6 +52,18 @@ async def worker(session, key, db, username=None, password=None):
 
         db[REQ_TO_HASH][data] = k
         db[HASH_TO_HTML][k] = r.text
+
+def persist_db(db):
+    output_dir = os.getcwd() + '/output'
+
+    if not os.path.isdir(output_dir):
+        os.makedirs(output_dir)
+
+    timestr = time.strftime('%H_%M_%S-%Y_%m_%d')
+    output_filename = output_dir + '/' + timestr + '.json'
+
+    with open(output_filename, 'w') as out:
+        json.dump(db, out, indent=4)
 
 def parse_curl_file(curl):
     if os.path.exists(curl):
