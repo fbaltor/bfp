@@ -27,8 +27,7 @@ def bf(curl, username=None, password=None):
 
 async def bf_username(curl, username_file, password=None):
     http_args = parse_curl_file(curl)
-    s = asks.Session(http_args.url, headers=dict(http_args.header), connections=10)
-
+    s = asks.Session(http_args.url, headers=dict(http_args.header), connections=500)
 
     db = {}
     db[REQ_TO_HASH] = {}
@@ -37,13 +36,17 @@ async def bf_username(curl, username_file, password=None):
     async with trio.open_nursery() as nursery:
         with open(username_file) as file:
             for i, username in enumerate(file):
-                nursery.start_soon(worker, s, i, db, username)
+                nursery.start_soon(worker, s, db, username, i)
 
     persist_db(db)
 
-async def worker(session, key, db, username=None, password=None):
-    data = f'username={username}&password={password}'
+async def worker(session, db, username=None, i=None):
+    if i:
+        print(f'starting {i} request with username {username}')
+    data = f'username={username}&password='
     r = await session.post(data=data)
+    if i:
+        print(f'request {i} ended')
 
     if r.status_code == 200:
         hasher = hashlib.md5()
@@ -82,5 +85,8 @@ def main(argv):
     bf(args.curl, args.username, args.password)
 
 if __name__ == '__main__':
+    start_time = time.time()
     main(sys.argv)
+    print(f'--- {time.time() - start_time} seconds ---')
+
 
